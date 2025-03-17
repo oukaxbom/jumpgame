@@ -155,7 +155,7 @@ class player:
             # 待機モーション2
             self.sprite_info = self.sprite[1]
 
-        if self.is_space_released and pyxel.btnp(pyxel.KEY_SPACE):
+        if self.is_space_released and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
             self.ps_state = "run"
             self.mash = 0
             self.is_space_released = False  # スペースキーの状態をリセット
@@ -198,7 +198,7 @@ class player:
             self.sprite_info = (19, 62, 0, 168, 0, 31, 25, 8)
             pass
 
-        if pyxel.btnr(pyxel.KEY_SPACE) or self.frame == 40:
+        if pyxel.btnr(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or self.frame == 40:
             self.frame = 0
             pyxel.stop(0) # チャンネル0の音声のみ停止
             pyxel.play(0, 1) # ジャンプの効果音
@@ -229,7 +229,7 @@ class player:
             self.frame = 0
 
         # ボタン処理
-        if self.is_space_released and pyxel.btnp(pyxel.KEY_SPACE) and self.after_jump_frame == 0: # , hold=30, repeat=2
+        if self.is_space_released and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)) and self.after_jump_frame == 0:
             self.ps_state = "slide"
             pyxel.play(0, 0) # スライドの効果音
             self.frame = 0
@@ -238,7 +238,7 @@ class player:
     def update(self):
         self.frame += 1 # プレイヤーフレーム変数に＋1
         # スペースキーが離されたことを確認する
-        if not pyxel.btn(pyxel.KEY_SPACE):
+        if not pyxel.btn(pyxel.KEY_SPACE) and not pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
             self.is_space_released = True  # 離されたことを記録
 
         if self.game.game_state == "TITLE":
