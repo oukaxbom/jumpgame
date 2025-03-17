@@ -15,7 +15,7 @@ class jumpgame:
         pyxel.init(160, 120, title=GAME_TITLE)
 
         # 画像読み込み
-        pyxel.load(r"C:\Users\user\Documents\pythonprogram\jumpgame\jumpgame.pyxres")
+        pyxel.load("jumpgame.pyxres")
 
         # 色変更 https://kinutani.hateblo.jp/entry/2022/12/18/224843
         # pyxel.colors[0] = 黒
