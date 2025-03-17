@@ -198,7 +198,7 @@ class player:
             self.sprite_info = (19, 62, 0, 168, 0, 31, 25, 8)
             pass
 
-        if pyxel.btnr(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT) or self.frame == 40:
+        if pyxel.btnr(pyxel.KEY_SPACE) or pyxel.btnr(pyxel.MOUSE_BUTTON_LEFT) or self.frame == 40:
             self.frame = 0
             pyxel.stop(0) # チャンネル0の音声のみ停止
             pyxel.play(0, 1) # ジャンプの効果音
