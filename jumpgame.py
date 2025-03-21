@@ -16,7 +16,7 @@ class jumpgame:
         pyxel.init(160, 120, title=GAME_TITLE)
 
         # 画像読み込み
-        pyxel.load("jumpgame.pyxres")
+        pyxel.load(r"G:\マイドライブ\jumpgame\jumpgame.pyxres")
 
         # 色変更 https://kinutani.hateblo.jp/entry/2022/12/18/224843
         # pyxel.colors[0] = 黒
@@ -39,10 +39,14 @@ class jumpgame:
         # 初期状態はタイトル画面。title play resultというつの状態が存在する。
         self._game_state = "TITLE"
 
-        self.mash =0
+        self.cake =0
         self.frame = 0
         self.play_score = 0 # ゲームスコア
-        
+
+        # スピードアップに必要な変数
+        self.play_time = 0
+        self.speed = 0.1
+
         self.player = player(self, "SMEE")
         self.sweets_list = []
         self.enemy_list = []
@@ -55,8 +59,9 @@ class jumpgame:
     def reset(self):
         del self.player
         self._game_state = "TITLE"
+        self.play_time = 0
         pyxel.stop(0) # チャンネル0の音声のみ停止
-        self.mash =0
+        self.cake = 0
         self.frame = 0
         self.player = player(self, "SMEE")
 
@@ -119,6 +124,7 @@ class jumpgame:
             pass
             
         if self._game_state == "PLAY":
+            self.play_time += 1
 
             # スイーツのアップデート
             for self.sweets in self.sweets_list[:]:
@@ -146,21 +152,25 @@ class jumpgame:
                     pass
 
             # 敵を増やす
-            if pyxel.rndi(1, 10) == 1 and not self.enemy_list:
+            if pyxel.rndi(1, 50) == 1 and not self.enemy_list:
                 self.enemy_list.append(enemy(self, "mari"))
 
             # スイーツを増やす
-            if pyxel.rndi(1, 200) == 1 and not self.sweets_list:
+            if pyxel.rndi(1, 200) == 1 and not self.sweets_list and self.player.hp != 3:
                 self.sweets_list.append(sweets(self, "mari"))
 
             # 30フレームごとに1ポイント
             if pyxel.frame_count % 30 == 0:
                 self.play_score += 1
 
-            # 長いマシュマロの処理
-            if self.mash == -51:
-                self.mash = 0
-            self.mash -= 3
+            # ショートケーキ・長いマシュマロの処理
+            if self.cake == -48:
+                self.cake = 0
+            self.cake -= 3
+
+            # 障害物のスピードを時間が経過するごとに増加
+            if self.play_time % 150 == 0:  # 100フレームごとにスピードを上げる
+                self.speed += 0.1
                     
         elif self._game_state == "RESULT":
             pass
@@ -185,9 +195,14 @@ class jumpgame:
             pyxel.text(3, 3, "SCORE:", 10)
             pyxel.text(28, 3, str(self.play_score), 10)
 
+            # ショートケーキ
+            for i in range(15):
+                pyxel.blt(self.cake + i*16, 95, 1, 0, 208, 16, 16, 8)
+                pyxel.blt(self.cake + i*16, 110, 1, 0, 208, 16, 16, 8)
+
             # 長いマシュマロ
             for i in range(5):
-                pyxel.blt(self.mash + i*48, 83, 1, 0, 0, 48, 16, 8)
+                pyxel.blt(self.cake + i*48, 83, 1, 0, 0, 48, 16, 8)
 
             # 体力(ビスケット)
             for i in range(self.player.hp):  # HPの数だけ表示
@@ -204,7 +219,6 @@ class jumpgame:
             # ジャンプのクールタイムバー
             if self.player.after_jump_frame > 0:
                 pyxel.blt(25, 85, 0, 200, 0, self.player.after_jump_frame -1 , 3, 8)
-
 
 class player:
     def __init__(self, game, name):
@@ -256,7 +270,6 @@ class player:
 
         if self.is_space_released and (pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT)):
             self.ps_state = "run"
-            self.mash = 0
             self.game.play_score = 0 # ゲームスコア
             self.is_space_released = False  # スペースキーの状態をリセット
             self.game.game_state = "PLAY"
@@ -395,15 +408,21 @@ class enemy:
         self.enemy_anime = 0
 
     def update(self):
-        if self.x == -16:
+        if self.x < -16:
             self.x = 161
         self.x -= 3
 
-        # 敵アニメーション
-        self.u = 16 if self.enemy_anime >= 5 else 0  
-        self.enemy_anime = (self.enemy_anime + 1) % 10
+        if self.x > 110:
+            self.u = 0
+        else:
+            # 敵アニメーション
+            self.u = 16 if self.enemy_anime >= 5 else 0  
+            self.enemy_anime = (self.enemy_anime + 1) % 10
 
     def draw(self):
-        pyxel.blt(self.x, self.y, 2, self.u, 32, self.w, self.h, 8)
+        if self.x > 110:
+            pyxel.blt(self.x, self.y, 2, self.u, 0, self.w, self.h, 8)
+        else:
+            pyxel.blt(self.x, self.y, 2, self.u, 32, self.w, self.h, 8)
 
 game = jumpgame()
